@@ -24,8 +24,8 @@ void PIDCalc()
   Iaz = Iaz + (Palt * intervalpid) / kI;
   Dalt = (erroalt - erroaltprevious) / intervalpid / kD;
   Daz = (erroaz - erroazprevious) / intervalpid / kD;
-  PIDaz = abs(Paz + Iaz + Daz);
-  PIDalt = abs(Palt + Ialt + Dalt);
+  PIDaz = Paz + Iaz + Daz;
+  PIDalt = Palt + Ialt + Dalt;
 
 }
 
@@ -37,62 +37,63 @@ void acionamotor() {
   PIDCalc();
   if (PIDaz == 0)
   {
-    if (millis() > (intervalpulseaz - 1))
+    if (millis() > (intervalpulseaz))
     {
-      gotoAz();
-    }
-    else
-    {
-      intervalpulseaz = millis() + MinTimer * (3 + (1 / abs(PIDaz)));
       gotoAz();
     }
   }
-
-
+  else
+  {
+    intervalpulseaz = millis() + MinTimer * (3 + (1 / abs(PIDaz)));
+    gotoAz();
+  }
   if (PIDalt == 0)
   {
-    if (millis() > (intervalpulsealt - 1))
+    if (millis() > (intervalpulsealt))
     {
-      gotoAlt();
-    }
-    else
-    {
-      intervalpulsealt = millis() + MinTimer * (3 + (1 / abs(PIDalt)));
       gotoAlt();
     }
   }
-
-
-
-
+  else
+  {
+    intervalpulsealt = millis() + MinTimer * (3 + (1 / abs(PIDalt)));
+    gotoAlt();
+  }
 
 }
 
 int gotoAlt()
 {
 
-  if (PIDalt >= 0) {
+  if (PIDalt > 0) {
     digitalWrite(DirAltpino, HIGH);
     digitalWrite(PassoAltpino, HIGH);   // turn the LED on (HIGH is the voltage level)
     delayMicroseconds(MinTimer);          // wait for a second
     digitalWrite(PassoAltpino, LOW);    // turn the LED off by making the voltage LOW
     ALTmount--;
     return abs(erroalt);
-
-  } else
-  {
-    if (PIDalt < 0) {
-      digitalWrite(DirAltpino, LOW);
-      digitalWrite(PassoAltpino, HIGH);   // turn the LED on (HIGH is the voltage level)
-      delayMicroseconds(MinTimer);          // wait for a second
-      digitalWrite(PassoAltpino, LOW);    // turn the LED off by making the voltage LOW
-      ALTmount++;
-      return abs(erroalt);
-
-    } else
+  }
+  if (PIDalt < 0) {
+    digitalWrite(DirAltpino, LOW);
+    digitalWrite(PassoAltpino, HIGH);   // turn the LED on (HIGH is the voltage level)
+    delayMicroseconds(MinTimer);          // wait for a second
+    digitalWrite(PassoAltpino, LOW);    // turn the LED off by making the voltage LOW
+    ALTmount++;
+    return abs(erroalt);
+  }
+  if (PIDalt = 0) {
+    digitalWrite(PassoAltpino, HIGH);   // turn the LED on (HIGH is the voltage level)
+    delayMicroseconds(MinTimer);          // wait for a second
+    digitalWrite(PassoAltpino, LOW);    // turn the LED off by making the voltage LOW
+    if (PassoAltpino == HIGH)
     {
-      return (0);
+      ALTmount--;
     }
+    else
+    {
+      ALTmount++;
+    }
+    return abs(erroalt);
   }
 }
 
@@ -100,26 +101,35 @@ int gotoAlt()
 int gotoAz()
 {
 
-  if (PIDaz >= 0) {
+  if (PIDaz > 0) {
     digitalWrite(DirAzpino, HIGH);
     digitalWrite(PassoAzpino, HIGH);   // turn the LED on (HIGH is the voltage level)
-    delayMicroseconds(10);            // wait for a second
+    delayMicroseconds(MinTimer);            // wait for a second
     digitalWrite(PassoAzpino, LOW);    // turn the LED off by making the voltage LOW
     AZmount--;
     return abs(erroaz);
-  } else
-  {
-    if (PIDaz < 0) {
-      digitalWrite(DirAzpino, LOW);
-      digitalWrite(PassoAzpino, HIGH);   // turn the LED on (HIGH is the voltage level)
-      delayMicroseconds(10);            // wait for a second
-      digitalWrite(PassoAzpino, LOW);    // turn the LED off by making the voltage LOW
-      AZmount++;
-      return abs(erroaz);
+  }
+  if (PIDaz < 0) {
+    digitalWrite(DirAzpino, LOW);
+    digitalWrite(PassoAzpino, HIGH);   // turn the LED on (HIGH is the voltage level)
+    delayMicroseconds(MinTimer);            // wait for a second
+    digitalWrite(PassoAzpino, LOW);    // turn the LED off by making the voltage LOW
+    AZmount++;
+    return abs(erroaz);
 
-    } else
+  }
+  if (PIDaz == 0) {
+    digitalWrite(PassoAzpino, HIGH);   // turn the LED on (HIGH is the voltage level)
+    delayMicroseconds(MinTimer);            // wait for a second
+    digitalWrite(PassoAzpino, LOW);    // turn the LED off by making the voltage LOW
+    if (DirAzpino == HIGH)
     {
-      return (0);
+      AZmount--;
     }
+    else
+    {
+      AZmount++;
+    }
+    return abs(erroaz);
   }
 }

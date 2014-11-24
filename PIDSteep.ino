@@ -25,7 +25,6 @@ double erroAZ, erroALT;
 float Palt = 0, Paz = 0;
 float Ialt = 0, Iaz = 0;  
 float Dalt = 0, Daz = 0;
-
 float kP = 0.12;     
 float kI = 0.430;
 float kD = 0.20;
