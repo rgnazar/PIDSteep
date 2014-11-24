@@ -21,13 +21,16 @@ double AZmountAlvo = 0.0;
 double ALTmountAlvo = 0.0;
 double erroAZ, erroALT;
 
+//PID Variaveis
 float Palt = 0, Paz = 0;
-float Ialt = 0, Iaz = 0;  //Il mesurement (empirism) - misurazione inerziale
+float Ialt = 0, Iaz = 0;  
 float Dalt = 0, Daz = 0;
-//variabile utilizzata per determinare se il robot è caduto
-float kP = 12;      //used to tune
-float kI = 430;
-float kD = 20;
+
+float kP = 0.12;     
+float kI = 0.430;
+float kD = 0.20;
+
+
 
 double erroaltprevious, erroalt, erroazprevious, erroaz, PIDalt, PIDaz;
 

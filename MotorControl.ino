@@ -25,37 +25,53 @@ void PIDCalc()
   Dalt = (erroalt - erroaltprevious) / intervalpid / kD;
   Daz = (erroaz - erroazprevious) / intervalpid / kD;
   PIDaz = abs(Paz + Iaz + Daz);
-  if (PIDaz < (MinTimer * 3)) {
-    PIDaz = MinTimer * 3;
-  }
   PIDalt = abs(Palt + Ialt + Dalt);
-  if (PIDalt < (MinTimer * 3)) {
-    PIDalt = MinTimer * 3;
-  }
+
 }
 
 void acionamotor() {
-
-  if ((millis() - intervalpulseaz) > (PIDaz))
-
+  erroazprevious = erroaz;
+  erroaz = AZmount -  AZmountAlvo;
+  erroaltprevious = erroalt;
+  erroalt = ALTmount -  ALTmountAlvo;
+  PIDCalc();
+  if (PIDaz == 0)
   {
-    intervalpulseaz = millis();
-    gotoAz();
+    if (millis() > (intervalpulseaz - 1))
+    {
+      gotoAz();
+    }
+    else
+    {
+      intervalpulseaz = millis() + MinTimer * (3 + (1 / abs(PIDaz)));
+      gotoAz();
+    }
   }
 
-  if ((millis() - intervalpulsealt) > (PIDalt))
 
+  if (PIDalt == 0)
   {
-    intervalpulsealt = millis();
-    gotoAlt();
+    if (millis() > (intervalpulsealt - 1))
+    {
+      gotoAlt();
+    }
+    else
+    {
+      intervalpulsealt = millis() + MinTimer * (3 + (1 / abs(PIDalt)));
+      gotoAlt();
+    }
   }
+
+
+
+
+
 }
 
 int gotoAlt()
 {
-  erroaltprevious = erroalt;
-  erroalt = ALTmount -  ALTmountAlvo;
-  if (erroalt > 1) {
+
+  if (PIDalt >= 0) {
     digitalWrite(DirAltpino, HIGH);
     digitalWrite(PassoAltpino, HIGH);   // turn the LED on (HIGH is the voltage level)
     delayMicroseconds(MinTimer);          // wait for a second
@@ -65,7 +81,7 @@ int gotoAlt()
 
   } else
   {
-    if (erroalt < 1) {
+    if (PIDalt < 0) {
       digitalWrite(DirAltpino, LOW);
       digitalWrite(PassoAltpino, HIGH);   // turn the LED on (HIGH is the voltage level)
       delayMicroseconds(MinTimer);          // wait for a second
@@ -83,9 +99,8 @@ int gotoAlt()
 
 int gotoAz()
 {
-  erroazprevious = erroaz;
-  erroaz = AZmount -  AZmountAlvo;
-  if (erroaz > 1) {
+
+  if (PIDaz >= 0) {
     digitalWrite(DirAzpino, HIGH);
     digitalWrite(PassoAzpino, HIGH);   // turn the LED on (HIGH is the voltage level)
     delayMicroseconds(10);            // wait for a second
@@ -94,7 +109,7 @@ int gotoAz()
     return abs(erroaz);
   } else
   {
-    if (erroaz < 1) {
+    if (PIDaz < 0) {
       digitalWrite(DirAzpino, LOW);
       digitalWrite(PassoAzpino, HIGH);   // turn the LED on (HIGH is the voltage level)
       delayMicroseconds(10);            // wait for a second
