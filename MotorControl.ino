@@ -37,30 +37,49 @@ void acionamotor() {
   PIDCalc();
   if (PIDaz == 0)
   {
-    if (millis() > (intervalpulseaz))
+    if (millis() > intervalpulseaz)
     {
+      intervalpulseaz = Accelaz + millis();
       gotoAz();
     }
   }
-  else
+  else 
   {
-    intervalpulseaz = millis() + MinTimer * (3 + (1 / abs(PIDaz)));
-    gotoAz();
-  }
-  if (PIDalt == 0)
-  {
-    if (millis() > (intervalpulsealt))
+    if (millis() > intervalpulseaz)
     {
+      Accelaz = MinTimer*(3+(1/abs(PIDaz));
+      intervalpulseaz = Accelaz + millis();
+      gotoAz();
+    }
+
+  }
+  
+   if (PIDalt == 0)
+  {
+    if (millis() > intervalpulsealt)
+    {
+      intervalpulsealt = Accelalt + millis();
       gotoAlt();
     }
   }
-  else
+  else 
   {
-    intervalpulsealt = millis() + MinTimer * (3 + (1 / abs(PIDalt)));
-    gotoAlt();
-  }
+    if (millis() > intervalpulsealt)
+    {
+      Accelalt = MinTimer*(3+(1/abs(PIDalt));
+      intervalpulsealt = Accelalt + millis();
+      gotoAlt();
+    }
 
+  }
+  
+  
+  
 }
+
+
+
+
 
 int gotoAlt()
 {
