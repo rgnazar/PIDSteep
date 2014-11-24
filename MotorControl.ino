@@ -43,18 +43,22 @@ void acionamotor() {
       gotoAz();
     }
   }
-  else 
+  else
   {
     if (millis() > intervalpulseaz)
     {
-      Accelaz = MinTimer*(3+(1/abs(PIDaz));
+      Accelaz = abs(PIDaz);
+      if (Accelaz < (3 * MinTimer))
+      {
+        Accelaz = 3 * MinTimer;
+      }
       intervalpulseaz = Accelaz + millis();
       gotoAz();
     }
 
   }
-  
-   if (PIDalt == 0)
+
+  if (PIDalt == 0)
   {
     if (millis() > intervalpulsealt)
     {
@@ -62,19 +66,20 @@ void acionamotor() {
       gotoAlt();
     }
   }
-  else 
+  else
   {
     if (millis() > intervalpulsealt)
     {
-      Accelalt = MinTimer*(3+(1/abs(PIDalt));
+      Accelalt =  abs(PIDalt);
+      if (Accelalt < (3 * MinTimer))
+      {
+        Accelalt = 3 * MinTimer;
+      }
       intervalpulsealt = Accelalt + millis();
       gotoAlt();
     }
 
   }
-  
-  
-  
 }
 
 
