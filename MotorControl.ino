@@ -14,19 +14,21 @@ void iniciapmotores()
 
 }
 
-
 void PIDCalc()
 {
-  intervalpid = millis() - intervalpid;
-  Palt = erroalt / kP;
-  Paz = erroaz / kP;
-  Ialt = Ialt + (Palt * intervalpid) / kI;
-  Iaz = Iaz + (Palt * intervalpid) / kI;
-  Dalt = (erroalt - erroaltprevious) / intervalpid / kD;
-  Daz = (erroaz - erroazprevious) / intervalpid / kD;
-  PIDaz = Paz + Iaz + Daz;
-  PIDalt = Palt + Ialt + Dalt;
-
+  if (timerpid + 50 < millis())
+  {
+    intervalpid = millis() - timerpid;
+    timerpid = millis();
+    Palt = erroalt * kP;
+    Paz = erroaz * kP;
+    Ialt = Ialt + (Palt * intervalpid) * kI;
+    Iaz = Iaz + (Palt * intervalpid) * kI;
+    Dalt = (erroalt - erroaltprevious) / intervalpid * kD;
+    Daz = (erroaz - erroazprevious) / intervalpid * kD;
+    PIDaz = Paz + Iaz + Daz;
+    PIDalt = Palt + Ialt + Dalt;
+  }
 }
 
 void acionamotor() {
@@ -34,53 +36,85 @@ void acionamotor() {
   erroaz = AZmount -  AZmountAlvo;
   erroaltprevious = erroalt;
   erroalt = ALTmount -  ALTmountAlvo;
-  PIDCalc();
+
+  /////////////////////////AZ MOV
   if (PIDaz == 0)
   {
-    if (millis() > intervalpulseaz)
+    if (micros() > intervalpulseaz)
     {
-      intervalpulseaz = Accelaz + millis();
-      gotoAz();
+      intervalpulseaz = Accelaz + micros();
+      //gotoAz();
     }
   }
   else
   {
-    if (millis() > intervalpulseaz)
+    if (micros() > intervalpulseaz)
     {
-      Accelaz = abs(PIDaz);
+      if (Accelaz < MaxPassoAz / abs(PIDaz))
+      {
+        Accelaz = MaxPassoAz / abs(PIDaz);
+      }
+      else
+      {
+        if (Accelaz > (MaxPassoAz/500)) {
+          Accelaz = (MaxPassoAz/500);
+        }
+        Accelaz = (Accelaz * 0.9995);
+      }
       if (Accelaz < (3 * MinTimer))
       {
         Accelaz = 3 * MinTimer;
       }
-      intervalpulseaz = Accelaz + millis();
+      intervalpulseaz = Accelaz + micros();
       gotoAz();
     }
 
   }
-
+  /////////////////////////ALT MOV
   if (PIDalt == 0)
   {
-    if (millis() > intervalpulsealt)
+    if (micros() > intervalpulsealt)
     {
-      intervalpulsealt = Accelalt + millis();
-      gotoAlt();
+      intervalpulsealt = Accelalt + micros();
+      //gotoAlt();
     }
   }
   else
   {
-    if (millis() > intervalpulsealt)
+    if (micros() > intervalpulsealt)
     {
-      Accelalt =  abs(PIDalt);
+      if (Accelalt < MaxPassoAlt / abs(PIDalt))
+      {
+        Accelalt = MaxPassoAlt / abs(PIDalt);
+      }
+      else
+      {
+        if (Accelalt > (MaxPassoAlt/500)) {
+          Accelalt = (MaxPassoAlt/500);
+        }
+        Accelalt = (Accelalt * 0.9995);
+      }
       if (Accelalt < (3 * MinTimer))
       {
         Accelalt = 3 * MinTimer;
       }
-      intervalpulsealt = Accelalt + millis();
+      intervalpulsealt = Accelalt + micros();
       gotoAlt();
     }
 
   }
+
 }
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -92,7 +126,7 @@ int gotoAlt()
   if (PIDalt > 0) {
     digitalWrite(DirAltpino, HIGH);
     digitalWrite(PassoAltpino, HIGH);   // turn the LED on (HIGH is the voltage level)
-    delayMicroseconds(MinTimer);          // wait for a second
+    delayMicroseconds(MinTimer / 3);        // wait for a second
     digitalWrite(PassoAltpino, LOW);    // turn the LED off by making the voltage LOW
     ALTmount--;
     return abs(erroalt);
@@ -100,14 +134,14 @@ int gotoAlt()
   if (PIDalt < 0) {
     digitalWrite(DirAltpino, LOW);
     digitalWrite(PassoAltpino, HIGH);   // turn the LED on (HIGH is the voltage level)
-    delayMicroseconds(MinTimer);          // wait for a second
+    delayMicroseconds(MinTimer / 3);        // wait for a second
     digitalWrite(PassoAltpino, LOW);    // turn the LED off by making the voltage LOW
     ALTmount++;
     return abs(erroalt);
   }
   if (PIDalt = 0) {
     digitalWrite(PassoAltpino, HIGH);   // turn the LED on (HIGH is the voltage level)
-    delayMicroseconds(MinTimer);          // wait for a second
+    delayMicroseconds(MinTimer / 3);        // wait for a second
     digitalWrite(PassoAltpino, LOW);    // turn the LED off by making the voltage LOW
     if (PassoAltpino == HIGH)
     {
@@ -128,7 +162,7 @@ int gotoAz()
   if (PIDaz > 0) {
     digitalWrite(DirAzpino, HIGH);
     digitalWrite(PassoAzpino, HIGH);   // turn the LED on (HIGH is the voltage level)
-    delayMicroseconds(MinTimer);            // wait for a second
+    delayMicroseconds(MinTimer / 3);          // wait for a second
     digitalWrite(PassoAzpino, LOW);    // turn the LED off by making the voltage LOW
     AZmount--;
     return abs(erroaz);
@@ -136,7 +170,7 @@ int gotoAz()
   if (PIDaz < 0) {
     digitalWrite(DirAzpino, LOW);
     digitalWrite(PassoAzpino, HIGH);   // turn the LED on (HIGH is the voltage level)
-    delayMicroseconds(MinTimer);            // wait for a second
+    delayMicroseconds(MinTimer / 3);          // wait for a second
     digitalWrite(PassoAzpino, LOW);    // turn the LED off by making the voltage LOW
     AZmount++;
     return abs(erroaz);
@@ -144,7 +178,7 @@ int gotoAz()
   }
   if (PIDaz == 0) {
     digitalWrite(PassoAzpino, HIGH);   // turn the LED on (HIGH is the voltage level)
-    delayMicroseconds(MinTimer);            // wait for a second
+    delayMicroseconds(MinTimer / 3);          // wait for a second
     digitalWrite(PassoAzpino, LOW);    // turn the LED off by making the voltage LOW
     if (DirAzpino == HIGH)
     {
